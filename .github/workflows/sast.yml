@@ -1,0 +1,26 @@
+# Reusable: static analysis with CodeQL. Results appear in the Security tab.
+name: sast
+
+on:
+  workflow_call:
+    inputs:
+      languages:
+        description: CodeQL languages, comma separated.
+        type: string
+        default: python
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ inputs.languages }}
+      - uses: github/codeql-action/analyze@v3

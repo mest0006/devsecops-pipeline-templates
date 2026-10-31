@@ -1,0 +1,32 @@
+# Reusable: lint and scan Terraform. Fails on findings unless soft-fail is set.
+name: iac-scan
+
+on:
+  workflow_call:
+    inputs:
+      terraform-dir:
+        description: Directory containing Terraform code.
+        type: string
+        default: terraform
+      soft-fail:
+        description: Report Checkov findings without failing the job.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: terraform fmt
+        run: terraform fmt -check -recursive "${{ inputs.terraform-dir }}"
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ${{ inputs.terraform-dir }}
+          framework: terraform
+          soft_fail: ${{ inputs.soft-fail }}
